@@ -1,0 +1,39 @@
+import asyncio
+import logging
+import os
+import sys
+
+from aiogram import Bot, Dispatcher, types
+from aiogram.enums import ParseMode
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import Message
+
+# Проверка токена
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+if not BOT_TOKEN:
+    print("❌ BOT_TOKEN не указан в переменных окружения")
+    sys.exit(1)
+
+# Настройка логов
+logging.basicConfig(level=logging.INFO)
+
+# Инициализация бота
+bot = Bot(token=BOT_TOKEN, parse_mode=ParseMode.HTML)
+dp = Dispatcher(storage=MemoryStorage())
+
+@dp.message(commands=["start"])
+async def cmd_start(message: Message):
+    await message.answer("👋 Привет! Я бот-магазин. Напиши /start чтобы начать.")
+
+@dp.message()
+async def echo(message: Message):
+    await message.answer("Я тебя не понял. Напиши /start.")
+
+async def main():
+    try:
+        await dp.start_polling(bot)
+    finally:
+        await bot.session.close()
+
+if __name__ == "__main__":
+    asyncio.run(main())
